@@ -1,0 +1,30 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2025-01-20 06:07:33 --> 404 Page Not Found: Phpinfophp/index
+ERROR - 2025-01-20 06:07:33 --> 404 Page Not Found: Infophp/index
+ERROR - 2025-01-20 06:07:33 --> 404 Page Not Found: Phpinfo/index
+ERROR - 2025-01-20 06:07:34 --> 404 Page Not Found: Php_infophp/index
+ERROR - 2025-01-20 06:07:34 --> 404 Page Not Found: Testphp/index
+ERROR - 2025-01-20 06:07:35 --> 404 Page Not Found: _profiler/phpinfo
+ERROR - 2025-01-20 06:07:41 --> 404 Page Not Found: Env/index
+ERROR - 2025-01-20 06:07:41 --> 404 Page Not Found: Config/.env
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Phpinfophp/index
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Envproduction/index
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Envlocal/index
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Infophp/index
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Api/shared
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Phpinfo/index
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Api/.env
+ERROR - 2025-01-20 06:07:42 --> 404 Page Not Found: Php_infophp/index
+ERROR - 2025-01-20 06:07:43 --> 404 Page Not Found: Testphp/index
+ERROR - 2025-01-20 06:07:43 --> 404 Page Not Found: _profiler/phpinfo
+ERROR - 2025-01-20 06:07:44 --> 404 Page Not Found: Env/index
+ERROR - 2025-01-20 06:07:45 --> 404 Page Not Found: Contact/index
+ERROR - 2025-01-20 06:07:45 --> 404 Page Not Found: Aws/credentials
+ERROR - 2025-01-20 06:07:49 --> 404 Page Not Found: Config/.env
+ERROR - 2025-01-20 06:07:49 --> 404 Page Not Found: Envproduction/index
+ERROR - 2025-01-20 06:07:50 --> 404 Page Not Found: Envlocal/index
+ERROR - 2025-01-20 06:07:55 --> 404 Page Not Found: Api/shared
+ERROR - 2025-01-20 06:07:55 --> 404 Page Not Found: Api/.env
+ERROR - 2025-01-20 06:07:58 --> 404 Page Not Found: Contact/index
+ERROR - 2025-01-20 06:07:58 --> 404 Page Not Found: Aws/credentials

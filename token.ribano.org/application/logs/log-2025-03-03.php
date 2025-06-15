@@ -1,0 +1,42 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2025-03-03 07:44:35 --> 404 Page Not Found: Httpdconf/index
+ERROR - 2025-03-03 07:44:36 --> 404 Page Not Found: Apps/.env
+ERROR - 2025-03-03 07:44:36 --> 404 Page Not Found: Php_infophp/index
+ERROR - 2025-03-03 07:44:36 --> 404 Page Not Found: Api/.env
+ERROR - 2025-03-03 13:44:36 --> Severity: Warning --> Attempt to read property "cat_id" on null /home/ribano/public_html/token.ribano.org/application/controllers/Home.php 223
+ERROR - 2025-03-03 07:44:43 --> 404 Page Not Found: Envproduction/index
+ERROR - 2025-03-03 07:44:43 --> 404 Page Not Found: Protected/.env
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Base/.env
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Envdevelopment/index
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: V2/.env
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Database/.env
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Configyamlbak/index
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Envbak/index
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Packagejson/index
+ERROR - 2025-03-03 07:45:02 --> 404 Page Not Found: Conf/.env
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: Application-devproperties/index
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: AWS_/credentials
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: Karmaconfjson/index
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: Wp-configphpsave/index
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: App/config
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: backend/Env/index
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: Config/php.ini
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: Envsave/index
+ERROR - 2025-03-03 07:45:03 --> 404 Page Not Found: Db_configphp/index
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: Crm/.env
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: Laravel/.env
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: System/.env
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: Htaccess/index
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: Api/config
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: App/.env
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: Admin/.env
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: Cgi-bin/.env
+ERROR - 2025-03-03 07:45:04 --> 404 Page Not Found: _profiler/phpinfo
+ERROR - 2025-03-03 07:45:18 --> 404 Page Not Found: Old/.env
+ERROR - 2025-03-03 07:45:18 --> 404 Page Not Found: Envjson/index
+ERROR - 2025-03-03 07:45:19 --> 404 Page Not Found: Api/env
+ERROR - 2025-03-03 07:45:19 --> 404 Page Not Found: Resources/.env
+ERROR - 2025-03-03 07:45:19 --> 404 Page Not Found: Infophp/index
+ERROR - 2025-03-03 07:45:19 --> 404 Page Not Found: Wp-configphp/index
+ERROR - 2025-03-03 07:45:20 --> 404 Page Not Found: Devphp/index

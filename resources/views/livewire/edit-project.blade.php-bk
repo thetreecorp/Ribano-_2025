@@ -1,0 +1,867 @@
+@inject('common', 'App\Http\Controllers\ProjectController')
+<section class="project_submit_area">
+    <div class="container">
+        <div class="row">  
+            {{-- @if(!empty($successMessage))
+                <div class="alert alert-success">
+                   {{ $successMessage }}
+                </div>
+            @endif --}}
+            @if (session()->has('message'))
+                <div class="alert alert-success">
+                    {{ session('message') }}
+                </div>
+            @endif
+  
+            <div class="stepwizard">
+                <div class="stepwizard-row setup-panel">
+                    <div class="stepwizard-step">
+                        <a href="#step-1" type="button" class="btn btn-circle {{ ($currentStep === 1) ? 'active' : (1 < $currentStep ? 'btn-primary' : 'btn-default')  }}">1</a>
+                        <p>{{translate('Company Info')}}</p>
+                    </div>
+                    <div class="stepwizard-step">
+                        <a href="#step-2" type="button" class="btn btn-circle {{ ($currentStep === 2) ? 'active' : (2 < $currentStep ? 'btn-primary' : 'btn-default')  }}">2</a>
+                        <p>{{translate('Pitch & Deal')}}</p>
+                    </div>
+                    <div class="stepwizard-step">
+                        <a href="#step-3" type="button" class="btn btn-circle {{ ($currentStep === 3) ? 'active' : (3 < $currentStep ? 'btn-primary' : 'btn-default') }}" disabled="disabled">3</a>
+                        <p>{{translate('Team')}}</p>
+                    </div>
+                    <div class="stepwizard-step">
+                        <a href="#step-4" type="button" class="btn btn-circle {{ ($currentStep === 4) ? 'active' : (4 < $currentStep ? 'btn-primary' : 'btn-default') }}" disabled="disabled">4</a>
+                        <p>{{translate('Image & Video')}}</p>
+                    </div>
+                    <div class="stepwizard-step">
+                        <a href="#step-5" type="button" class="btn btn-circle {{ ($currentStep === 5) ? 'active' : (5 < $currentStep ? 'btn-primary' : 'btn-default') }}" disabled="disabled">5</a>
+                        <p>{{translate('Document')}}</p>
+                    </div>
+                    
+                </div>
+            </div>
+  
+                <div class="row setup-content {{ $currentStep != 1 ? 'displayNone' : '' }}" id="step-1">
+                    <div class="col-xs-12">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="title">{{translate('Pitch Title')}}:</label>
+                                    <input type="text" wire:model="title" class="form-control">
+                                    @error('title') <span class="error">{{ $message }}</span> @enderror
+                                </div>
+                                
+                               
+                                <div class="col-sm-6">
+                                    <label for="webiste">{{translate('Website (Optional)')}}:</label>
+                                    <input type="text" wire:model="website" class="form-control" placeholder="https//" />
+
+                                    {{-- <input 
+                                        wire:model="taskduedate"
+                                        type="text" class="form-control datepicker" placeholder="Due Date" 
+                                        autocomplete="off"
+                                        data-provide="datepicker" data-date-autoclose="true" 
+                                        data-date-format="mm/dd/yyyy" data-date-today-highlight="true"                        
+                                        onchange="this.dispatchEvent(new InputEvent('input'))"
+                                    > --}}
+                                    
+                                    
+                                </div>
+                                
+                            </div>
+                            
+                            
+                            @php
+                                $country_code = (string) @getIpInfo()['code'] ?: null;
+                                $myCollection = collect(config('country'))->map(function($row) {
+                                    return collect($row);
+                                });
+                                $countries = $myCollection->sortBy('code');
+                            @endphp
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="">{{translate('Where is the management located?')}}:</label>
+                                    <select class="form-control" wire:model="located" id="form_management_locations">
+                                        @foreach($common->getLocationsOption() as $value)       
+                                            <option value="{{$value}}">{{$value}}</option>  
+                                        @endforeach
+                                        {{-- <option value="Outside Middle East">Outside Middle East</option>
+                                        <option value="Afghanistan">Afghanistan</option>
+                                        <option value="Armenia">Armenia</option>
+                                        <option value="Azerbaijan">Azerbaijan</option>
+                                        <option value="Bahrain">Bahrain</option>
+                                        <option value="Brunei">Brunei</option>
+                                        <option value="Egypt">Egypt</option>
+                                        <option value="Iran">Iran</option>
+                                        <option value="Iraq">Iraq</option>
+                                        <option value="Israel">Israel</option>
+                                        <option value="Jordan">Jordan</option>
+                                        <option value="Kazakhstan">Kazakhstan</option>
+                                        <option value="Kuwait">Kuwait</option>
+                                        <option value="Kyrgyzstan">Kyrgyzstan</option>
+                                        <option value="Lebanon">Lebanon</option>
+                                        <option value="Oman">Oman</option>
+                                        <option value="Palestine">Palestine</option>
+                                        <option value="Qatar">Qatar</option>
+                                        <option value="Saudi Arabia">Saudi Arabia</option>
+                                        <option value="Syria">Syria</option>
+                                        <option value="Turkmenistan">Turkmenistan</option>
+                                        <option value="UAE">UAE</option>
+                                        <option value="Uzbekistan">Uzbekistan</option>
+                                        <option value="Yemen">Yemen</option> --}}
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="">{{translate('Country')}}:</label>
+                                    <select wire:model="country" name="country" class="form-control">
+                                        @foreach(config('country') as $value)
+                                            <option value="{{$value['name']}}"
+                                                    data-name="{{$value['name']}}"
+                                                    data-code="{{$value['code']}}"
+                                                {{$country_code == $value['code'] ? 'selected' : ''}}
+                                            > {{$value['name']}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="form-group">
+                                <label for="">{{translate('Mobile Number')}}:</label>
+                                <div class="input-group mb-3">
+                                
+                                    <select wire:model="phone_code" name="phone_code" class="form-control country_code dialCode-change register_phone_select">
+                                        @foreach(config('country') as $value)
+                                            <option value="{{$value['phone_code']}}"
+                                                    data-name="{{$value['name']}}"
+                                                    data-code="{{$value['code']}}"
+                                                {{$country_code == $value['code'] ? 'selected' : ''}}
+                                            > {{$value['name']}} ({{$value['phone_code']}})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <span class="input-group-text" id="basic-addon2"><i class="fa fa-globe-americas"></i></span>
+    
+                                    <input wire:model="mobile_number" type="text" name="mobile_number" class="form-control dialcode-set" value="" placeholder="@lang('Phone Number')">
+                                    <span class="input-group-text" id="basic-addon2"><i class="fa fa-phone"></i></span>
+                                    @error('mobile_number')
+                                    <span class="text-danger mt-1">@lang($message)</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="webiste">{{translate('Industry 1')}}:</label>
+                                    <select class="select form-control" wire:model="industry_1" name="industry_1">
+                                        <option value="">Please Select</option>
+                                        @foreach($common->getIndustries() as $value)
+                                            <option value="{{$value}}">{{$value}}</option>            
+                                            
+                                            
+                                        @endforeach
+                                    </select> 
+                                    
+                                    
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="webiste">{{translate('Industry 2')}}:</label>
+                                    <select class="select form-control" wire:model="industry_2" name="industry_2">
+                                        <option value="">Please Select</option>
+                                        @foreach($common->getIndustries() as $value)
+                                            <option value="{{$value}}">{{$value}}</option>            
+                                            
+                                            
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="webiste">{{translate('Stage')}}:</label>
+                                    <select class="select form-control"  wire:model="stage" name="stage">
+                                       
+                                        @foreach($common->getStages() as $value)
+                                            <option value="{{$value}}">{{$value}}</option>            
+                                        @endforeach
+                                    </select>
+                                    
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="webiste">{{translate('Ideal Investor Role')}}:</label>
+                                    <select class="select form-control"  wire:model="ideal_investor_role" name="ideal_investor_role">
+                                        @foreach($common->getInvestorRole() as $value)
+                                            <option value="{{$value}}">{{$value}}</option>            
+                                        @endforeach
+    
+                                    </select>
+                                    
+                                </div>
+    
+                            </div>
+                            
+                            
+              
+                            <button class="btn btn-primary nextBtn btn-lg pull-right mrt-10" wire:click="companySubmit" type="button" >Next</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row setup-content {{ $currentStep != 2 ? 'displayNone' : '' }}" id="step-2">
+                    <div class="col-xs-12">
+                        <div class="col-md-12">
+                            <h3>{{translate('Pitch & Deal')}}</h3>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="input-group mb-3">
+                                        <label for="">{{translate('Short Summary')}}</label>
+                                    </div>
+                                    <textarea type="text" wire:model="short_summary" class="form-control" id="short_summary"></textarea>
+                                    @error('short_summary') <span class="error">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="input-group mb-3">
+                                        <label for="">{{translate('The Business')}}</label>
+                                    </div>
+                                    <textarea type="text" wire:model="the_business" class="form-control" id="the_business"></textarea>
+                                    
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="input-group mb-3">
+                                        <label for="">{{translate('The Market')}}</label>
+                                    </div>
+                                    <textarea type="text" wire:model="the_market" class="form-control" id="the_business"></textarea>
+                                    
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="input-group mb-3">
+                                        <label for="">{{translate('Progress/Proof')}}</label>
+                                    </div>
+                                    <textarea type="text" wire:model="progress_proof" class="form-control" id="progress_proof"></textarea>
+                                    
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="form-group">
+                                <div class="input-group mb-3">
+                                    <label for="">{{translate('Objectives/Future')}}</label>
+                                </div>
+                                <textarea type="text" wire:model="objectives_future" class="form-control" id="objectives_future"></textarea>
+                               
+                            </div>
+                            <div class="form-group">
+                                <div class="ico-alert">
+                                <span class="editableLabel">
+                                    {{translate('Got more to say? That is great! Our investors love detail. You can add one more section if there is something else you really want investors to know')}}.
+                                </span>
+                                </div>
+                            </div>
+                            <div class="new-section">
+                                
+                                @foreach($new_sections as $key => $value)
+                                    <div class="add-input">
+                                        <div class="form-group">
+                                            <input type="text" wire:model="name_section.{{ $value }}" class="form-control mr-bt10" value="" placeholder="@lang('section title')">
+                                            <textarea placeholder="@lang('section description')" type="text" wire:model="content_section.{{ $value }}"  class="form-control"></textarea>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-danger btn-sm" wire:click.prevent="removeSection({{$key}})">Remove</button>
+                                        </div>
+                                        
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="form-group">
+                                <div class="ico-buton">
+                                    <span wire:click.prevent="addSection({{$section}})" id="add-new-section" class="btn btn-primary">
+                                        {{translate('Add New Section')}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group mb-3">
+                                    <label for="">{{translate('Highlights')}}</label>
+                                </div>
+                                @for ($count = 0; $count <= 4; $count++)
+                                    <div class="form-group input-group">
+                                        <span class="span-border">{{$count}}</span>
+                                        <input type="text" wire:model="highlights.{{ $count }}"  class="form-control" value="" placeholder="">
+                                    </div>
+                                @endfor
+                            </div>
+                            <div class="form-group">
+                                <label for="">{{translate('The Deal')}}:</label>
+                                
+                                <p>
+                                    <label>
+                                        <span class="adding-bg checked">
+                                            <input wire:click="$toggle('show_equity')" wire:model="equity_checked" type="checkbox" value="1" {{ $equity_checked == '1' ? "checked" : "" }}>
+                                        </span>Equity
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        <span class="adding-bg checked">
+                                        <input  wire:click="$toggle('show_convertible')" wire:model="convertible_notes_checked" type="checkbox" value="1" {{ $convertible_notes_checked == '1' ? "checked" : "" }}>
+                                        </span>SAFE convertible notes
+                                    </label>
+                                </p>
+                            </div>
+                            
+                            @if($show_equity)
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="">{{translate('How much are you raising in total in this round')}}?</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="number" wire:model="raising"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('How much equity do you give for this amount of investment')}}?</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="number" wire:model="amount_of_investment"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('What will you do with that amount of investment')}}?</label>
+                                            <select class="select form-control" wire:model="investment_type">
+                                                <option value="" selected="selected">Select</option>
+                                                <option value="Fixed assets xxx">Fixed assets xxx</option>
+                                                <option value="Salaries">Salaries</option>
+                                                <option value="Goods">Goods</option>
+                                                <option value="Marketing">Marketing</option>
+                                                <option value="Other">Other</option>
+            
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('As investments')}}</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="number" wire:model="as_investments"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="form-group">
+                                    <label for="">{{translate('I can accept')}}:</label>
+                                    <label>
+                                        <span class="adding-bg checked">
+                                            <input  wire:model="accept_goods" type="checkbox" value="Goods" {{ $accept_goods == 'Goods' ? "checked" : "" }}>
+                                        </span>Goods
+                                    </label>
+                                    <label>
+                                        <span class="adding-bg checked">
+                                        <input wire:model="fixed_assets" type="checkbox" value="Fixed assets" {{ $fixed_assets == 'Fixed assets' ? "checked" : "" }}>
+                                        </span>Fixed assets
+                                    </label>
+                                    <label>
+                                        <span class="adding-bg checked">
+                                        <input wire:model="accept_hires" type="checkbox" value="Hires" {{ $accept_hires == '1' ? "checked" : "" }}>
+                                        </span>Hires
+                                    </label>
+                                </div>
+                                
+                            @endif
+                            
+                            @if($show_convertible)
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Purchase price')}}</label>
+                                            <input type="text" wire:model="purchase_price"  class="form-control" value="" placeholder="">
+                                        </div>
+                                        
+    
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Date of issuance')}}</label>
+                                            {{-- <input type="text" wire:model="date_of_issuance"  class="form-control" value="" placeholder=""> --}}
+                                            <input 
+                                                wire:model="date_of_issuance"
+                                                type="text" class="form-control datepicker" placeholder="Due Date" 
+                                                autocomplete="off"
+                                                data-provide="datepicker" data-date-autoclose="true" 
+                                                data-date-format="mm/dd/yyyy" data-date-today-highlight="true"                        
+                                                onchange="this.dispatchEvent(new InputEvent('input'))">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Exercise price')}}</label>
+                                            <input type="text" wire:model="exercise_price"  class="form-control" value="" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Exercise date')}}</label>
+                                            {{-- <input type="text" wire:model="exercise_date"  class="form-control" value="" placeholder=""> --}}
+                                            <input 
+                                                wire:model="exercise_date"
+                                                type="text" class="form-control datepicker" placeholder="Due Date" 
+                                                autocomplete="off"
+                                                data-provide="datepicker" data-date-autoclose="true" 
+                                                data-date-format="mm/dd/yyyy" data-date-today-highlight="true"                        
+                                                onchange="this.dispatchEvent(new InputEvent('input'))"
+                                            >
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Discount')}}</label>
+                                            <input type="text" wire:model="discount"  class="form-control" value="" placeholder="">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Maturity Date')}}</label>
+                                            <input 
+                                                wire:model="maturity_date"
+                                                type="text" class="form-control datepicker" placeholder="Due Date" 
+                                                autocomplete="off"
+                                                data-provide="datepicker" data-date-autoclose="true" 
+                                                data-date-format="mm/dd/yyyy" data-date-today-highlight="true"                        
+                                                onchange="this.dispatchEvent(new InputEvent('input'))"
+                                            >
+                                            {{-- <input type="text" wire:model="maturity_date"  class="form-control" value="" placeholder=""> --}}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('Valuation cap')}}</label>
+                                            <input type="text" wire:model="valuation_cap"  class="form-control" value="" placeholder="">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('If you did a previous round, how much did you raise')}}?</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="text" wire:model="previous_round_raise"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('How much of this total have you raised')}}?</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="text" wire:model="have_you_raised"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('What is the minimum investment per investor')}}?</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="text" wire:model="minimum_investment"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group ">
+                                            <label for="">{{translate('What is the maximum investment per investor')}}?</label>
+                                            <div class="input-group mb-3">
+                                                <span class="span-border">US$</span>
+                                                <input type="text" wire:model="maximum_investment"  class="form-control" value="" placeholder="">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="form-group">
+                                    <div class="ico-alert">
+                                    <span class="editableLabel">
+                                        {{translate('You can add financials if you wish but this is not required')}}.
+                                    </span>
+                                    </div>
+                                </div>
+                                
+                            @endif
+                            <div class="financial-section">
+                                @foreach($financial_sections as $key => $value)
+                                    <div class="add-input">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <input type="text" wire:model="finance_year.{{ $value }}" class="form-control mr-bt10" value="" placeholder="@lang('Year')">
+                                                
+
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="input-group mb-3">
+                                                    <span class="span-border">US$</span>
+                                                    <input type="text" wire:model="finance_turnove.{{ $value }}" class="form-control" value="" placeholder="@lang('Turnove')">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="input-group mb-3">
+                                                    <span class="span-border">US$</span>
+                                                    <input type="text" wire:model="finance_profit.{{ $value }}" class="form-control" value="" placeholder="@lang('Profit')">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-2">
+                                            <button class="btn btn-danger btn-sm" wire:click.prevent="removeFinancial({{$key}})">Remove</button>
+                                        </div>
+                                        
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="form-group">
+                                <div class="ico-button">
+                                <span wire:click.prevent="addFinancial({{$i}})" class="btn btn-primary">
+                                    {{translate('Add New Financial')}}
+                                </span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="">{{translate('Tags')}}</label>
+                                <div class="ico-alert mr-bt10">
+                                    <span class="editableLabel ">
+                                        {{translate('Enter 5 to 10 relevant keywords. These are really important to help investors find your pitch in our search engine. We always suggest using short and obvious tags that you think investors would actually search for. - (Press the Return key after each keyword to enter it)')}}.
+                                    </span>
+                                </div>
+                                <input type="text" data-role="tagsinput"  wire:model="tags" class="form-control" id="tags">
+                                
+
+                                  
+                            </div>
+              
+                            
+                    
+                            <button class="btn btn-danger nextBtn btn-lg pull-right" type="button" wire:click="back(1)">Back</button>
+                            <button class="btn btn-primary nextBtn btn-lg pull-right" type="button" wire:click="pitchSubmit">Next</button>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row setup-content {{ $currentStep != 3 ? 'displayNone' : '' }}" id="step-3">
+                    <div class="col-xs-12">
+                        <div class="col-md-12">
+                            <h3>{{translate('Team')}}</h3>
+              
+                            <div class="form-group">
+                                <div class="input-group mb-3">
+                                    <label for="">{{translate('Team Overview')}}</label>
+                                </div>
+                                <textarea type="text" wire:model="team_overview" class="form-control" id="team_overview"></textarea>
+                               
+                            </div>
+                            <div class="team-wrap">
+                                <label for="">{{translate('Team Members')}}</label>
+                                @foreach($team_members as $key => $value)
+                                    <div class="add-input">
+                                        <div class="form-group">
+                                            <input type="file" wire:model="avatar.{{ $value }}" class="form-control mr-bt10" value="">
+                                            
+                                            @if (!is_string($avatar[$value]) && $avatar[$value] != NULL)
+                                                <img class="team_image" src="{{ $avatar[$value]->temporaryUrl() }}" alt="team image" /> 
+                                            @else
+                                                {{-- <span>{{$avatar[$value]}}</span> --}}
+                                                @if ($common->checkImageType($avatar[$value]))
+                                                    <img class="team_image" src="{{ $common->getLinkIdrive($avatar[$value]) }}" alt="team image" /> 
+                                                @else
+                                                    <span>{{$avatar[$value]}}</span>
+                                                @endif
+                                            @endif
+                                            
+                                            
+                                           
+                                            <input type="text" wire:model="team_name.{{ $value }}" class="form-control mr-bt10" value="" placeholder="@lang('Team name')">
+                                            <input type="text" wire:model="linkedin.{{ $value }}" class="form-control mr-bt10" value="" placeholder="@lang('Linkedin')">
+                                            <input type="text" wire:model="position.{{ $value }}" class="form-control mr-bt10" value="" placeholder="@lang('Position')">
+                                           
+                                            <textarea type="text" wire:model="bio.{{ $value }}" class="form-control mr-bt10" placeholder="@lang('Bio')"></textarea>
+                                            
+                                            
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-danger btn-sm" wire:click.prevent="removeMember({{$key}})">Remove</button>
+                                        </div>
+                                        
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="ico-button">
+                                <span wire:click.prevent="addMember({{$j}})" class="btn btn-primary">
+                                    {{translate('Add Team Member')}}
+                                </span>
+                                </div>
+                            </div>
+              
+                            <button class="btn btn-danger nextBtn btn-lg pull-right" type="button" wire:click="back(2)">Back</button>
+                            <button class="btn btn-success btn-lg pull-right" wire:click="teamSubmit" type="button">Next</button>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row setup-content {{ $currentStep != 4 ? 'displayNone' : '' }}" id="step-4">
+                    <div class="col-xs-12">
+                        <div class="col-md-12">
+                            <h3>{{translate('Images & Videos')}}</h3>
+              
+                            <div class="form-group">
+                               
+                                <div class="ico-alert mr-bt10">
+                                    <span class="editableLabel ">
+                                        "{{translate('Nearly there! Images and videos are often the difference for the most successful pitches on our site. Investors, like everyone, respond really well to visuals. So give your pitch the best chance to stand out and drop in some relevant images')}}."
+                                    </span>
+                                </div>
+                                
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Logo')}}</label>
+                                <input type="file" wire:model="logo" class="form-control" value="">
+                                @if (!is_string($logo) && $banner != NULL)
+                                    <img class="team_image" src="{{ $logo->temporaryUrl() }}" alt="team image" /> 
+                                @else
+                                    
+                                    @if ($common->checkImageType($logo))
+                                        <img class="team_image" src="{{ $common->getLinkIdrive($logo) }}" alt="team image" /> 
+                                    @else
+                                        <span>{{$logo}}</span>
+                                    @endif
+                                @endif
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Banner image')}}</label>
+                                <input type="file" wire:model="banner" class="form-control" value="">
+                                @if (!is_string($banner) && $banner != NULL)
+                                    <img class="team_image" src="{{ $banner->temporaryUrl() }}" alt="team image" /> 
+                                @else
+                                    
+                                    @if ($common->checkImageType($banner))
+                                        <img class="team_image" src="{{ $common->getLinkIdrive($banner) }}" alt="team image" /> 
+                                    @else
+                                        <span>{{$banner}}</span>
+                                    @endif
+                                @endif
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Images')}}</label>
+                                <input type="file" wire:model="images" multiple class="form-control" value="">
+
+                                @foreach ($images as  $img)
+                                
+                                    @if (!is_string($img) && $img != NULL)
+                                        <img class="team_image" src="{{ $img->temporaryUrl() }}" alt="team image" /> 
+                                        
+                                    @else
+
+                                            @if ($common->checkImageType($img))
+                                                <img class="team_image" src="{{ $common->getLinkIdrive($img) }}" alt="team image" /> 
+                                            @else
+                                                <span>{{$img}}</span>
+                                            @endif
+                                        
+                                    @endif
+                                @endforeach
+                                
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Video url')}}</label>
+                                <input type="text" wire:model="video_url" multiple class="form-control" value="">
+                            </div>
+              
+                            <button class="btn btn-danger nextBtn btn-lg pull-right" type="button" wire:click="back(3)">Back</button>
+                            <button class="btn btn-success btn-lg pull-right" wire:click="imageSubmit" type="button">Next</button>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row setup-content {{ $currentStep != 5 ? 'displayNone' : '' }}" id="step-5">
+                    <div class="col-xs-12">
+                        <div class="col-md-12">
+                            <h3>{{translate('Document')}}</h3>
+              
+                            <div class="form-group">
+                                <div class="ico-alert mr-bt10">
+                                    <p class="editableLabel ">
+                                        {{translate('Do you have any business documents? Do not worry if not, as we will send you advice on how to make them once you have submitted your pitch. If you do have some, make sure you upload them as they will make your pitch look super professional.')}}.
+                                    </p>
+                                    <p class="editableLabel ">
+                                        <strong>{{translate('Please note:')}}</strong>
+                                        {{translate('If an investor downloads one of your documents, you will then be able to message them directly. So make sure you upload at least one document!')}}.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Business Plan')}}</label>
+                                <input type="file" wire:model="business_plan" class="form-control" value="">
+                                <div><em>{{translate('Files: Word, Excel, PowerPoint & PDF. Max file size: 10MB')}}</em></div>
+                                @if (!is_string($business_plan) && $business_plan != NULL)
+                                    <div class="file_name">
+                                        <a href="{{$business_plan->temporaryUrl()}}">{{translate('View file')}}</a>
+                                        
+                                    </div>
+                                @else
+                                    @if ($business_plan)
+                                        <div class="file_name">
+                                            <a href="{{ $common->getLinkIdrive($business_plan) }}">{{translate('View file')}}</a>
+                                        </div>
+                                    
+                                    @endif
+                                    
+                                @endif
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Financials')}}</label>
+                                <input type="file" wire:model="financials" class="form-control" value="">
+                                <div><em>{{translate('Files: Word, Excel, PowerPoint & PDF. Max file size: 10MB')}}</em></div>
+                                @if (!is_string($financials) && $financials != NULL)
+                                    <div class="file_name">
+                                        <a href="{{$financials->temporaryUrl()}}">{{translate('View file')}}</a>
+                                        
+                                    </div>
+                                @else
+                                    @if ($financials)
+                                        <div class="file_name">
+                                            <a href="{{ $common->getLinkIdrive($financials) }}">{{translate('View file')}}</a>
+                                        </div>
+                                    
+                                    @endif
+                                    
+                                @endif
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Pitch Deck')}}</label>
+                                <input type="file" wire:model="pitch_deck" class="form-control" value="">
+                                <div><em>{{translate('Files: Word, Excel, PowerPoint & PDF. Max file size: 10MB')}}</em></div>
+                                @if (!is_string($pitch_deck) && $pitch_deck != NULL)
+                                    <div class="file_name">
+                                        <a href="{{$pitch_deck->temporaryUrl()}}">{{translate('View file')}}</a>
+                                        
+                                    </div>
+                                @else
+                                    @if ($pitch_deck)
+                                        <div class="file_name">
+                                            <a href="{{ $common->getLinkIdrive($pitch_deck) }}">{{translate('View file')}}</a>
+                                        </div>
+                                    
+                                    @endif
+                                    
+                                @endif
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Executive Summary')}}</label>
+                                <input type="file" wire:model="executive_summary" class="form-control" value="">
+                                <div><em>{{translate('Files: Word, Excel, PowerPoint & PDF. Max file size: 10MB')}}</em></div>
+                                @if (!is_string($executive_summary) && $executive_summary != NULL)
+                                    <div class="file_name">
+                                        <a href="{{$executive_summary->temporaryUrl()}}">{{translate('View file')}}</a>
+                                        
+                                    </div>
+                                @else
+                                    @if ($executive_summary)
+                                        <div class="file_name">
+                                            <a href="{{ $common->getLinkIdrive($executive_summary) }}">{{translate('View file')}}</a>
+                                        </div>
+                                    
+                                    @endif
+                                    
+                                @endif
+                            </div>
+                            <div class="form-group ">
+                                <label for="">{{translate('Additional Documents')}}</label>
+                                <input type="file" wire:model="additional_documents" class="form-control" value="">
+                                <div><em>{{translate('Files: Word, Excel, PowerPoint & PDF. Max file size: 10MB')}}</em></div>
+                                @if (!is_string($additional_documents) && $additional_documents != NULL)
+                                    <div class="file_name">
+                                        <a href="{{$additional_documents->temporaryUrl()}}">{{translate('View file')}}</a>
+                                        
+                                    </div>
+                                @else
+                                    @if ($additional_documents)
+                                        <div class="file_name">
+                                            <a href="{{ $common->getLinkIdrive($additional_documents) }}">{{translate('View file')}}</a>
+                                        </div>
+                                    
+                                    @endif
+                                    
+                                @endif
+                            </div>
+              
+                            <button class="btn btn-danger nextBtn btn-lg pull-right" type="button" wire:click="back(4)">Back</button>
+                            <button class="btn btn-success btn-lg pull-right" wire:click="submitForm" type="button">Finish!</button>
+                            {{-- <button class="btn btn-success btn-lg pull-right" wire:click="documentSubmit" type="button">Next</button> --}}
+                        </div>
+                    </div>
+                </div>
+                
+               
+                
+        </div>
+    </div>
+    
+</section>
+@push('script')
+{{-- <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script> --}}
+<script src="{{asset('public/assets/js/bootstrap-tagsinput.min.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // "use strict";
+        // $(document).ready(function () {
+        //     setDialCode();
+        //     $(document).on('change', '.dialCode-change', function () {
+        //         console.log($(this).val());
+        //         $('.dialcode-set').attr('value', $(this).val());
+        //     });
+        //     function setDialCode() {
+        //         let currency = $('.dialCode-change').val();
+        //         console.log(currency);
+        //         $('.dialcode-set').attr('value', currency);
+        //     }
+
+           
+        // });
+
+        
+       
+    </script>
+@endpush

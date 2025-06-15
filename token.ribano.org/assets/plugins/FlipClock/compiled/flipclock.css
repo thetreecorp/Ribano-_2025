@@ -1,0 +1,201 @@
+/* Get the bourbon mixin from http://bourbon.io */
+/* Reset */
+.flip-clock-wrapper * {
+
+}
+.flip-clock-wrapper a {
+    cursor: pointer;
+    text-decoration: none;
+    color: #ccc; }
+
+.flip-clock-wrapper a:hover {
+    color: #fff; }
+
+.flip-clock-wrapper ul {
+    list-style: none; }
+
+/*.flip-clock-wrapper.clearfix:before,
+.flip-clock-wrapper.clearfix:after {
+    content: " ";
+    display: table; }
+
+.flip-clock-wrapper.clearfix:after {
+    clear: both; }*/
+
+/*.flip-clock-wrapper.clearfix {
+    *zoom: 1; }*/
+
+/* Main */
+.flip-clock-wrapper {
+    font: normal 11px 'Montserrat', sans-serif;
+    -webkit-user-select: none; }
+
+.flip-clock-meridium {
+    background: none !important;
+    box-shadow: 0 0 0 !important;
+    font-size: 36px !important; }
+.flip-clock-meridium a { color: #313333; }
+.flip-clock-wrapper {
+    text-align: center;
+    position: relative;
+    width: 100%;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+/* Skeleton */
+.flip-clock-wrapper ul {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    box-shadow: none !important;
+    border: 2px solid #fff;
+    margin-left: -2px;
+}
+.flip-clock-wrapper ul li {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    line-height: 63px;
+    text-decoration: none !important;
+}
+.flip-clock-wrapper ul li:first-child,
+.flip-clock-wrapper ul.play li.flip-clock-before{
+    display: none 
+}
+.flip-clock-wrapper ul li:first-child {
+    z-index: 2; }
+.flip-clock-wrapper ul li a {
+    display: block;
+    height: 100%;
+    -webkit-perspective: 200px;
+    -moz-perspective: 200px;
+    perspective: 200px;
+    margin: 0 !important;
+    overflow: visible !important;
+    cursor: default !important; }
+.flip-clock-wrapper ul li a div {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    outline: 1px solid transparent;
+    box-shadow: none !important;
+}
+.flip-clock-wrapper ul li a div.up {
+    -webkit-transform-origin: 50% 100%;
+    -moz-transform-origin: 50% 100%;
+    -ms-transform-origin: 50% 100%;
+    -o-transform-origin: 50% 100%;
+    transform-origin: 50% 100%;
+    top: 0; }
+.flip-clock-wrapper ul li a div.down {
+    -webkit-transform-origin: 50% 0;
+    -moz-transform-origin: 50% 0;
+    -ms-transform-origin: 50% 0;
+    -o-transform-origin: 50% 0;
+    transform-origin: 50% 0;
+    bottom: 0;
+}
+.flip-clock-wrapper ul li a div div.inn {
+    position: absolute;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    font-size: 48px;
+    font-weight: 700;
+}
+.flip-clock-wrapper ul li a div.up div.inn {
+    top: 0; }
+.flip-clock-wrapper ul li a div.down div.inn {
+    bottom: 0; }
+/* PLAY */
+/*.flip-clock-wrapper ul.play li.flip-clock-before {
+    z-index: 3; }*/
+.flip-clock-wrapper ul.play li.flip-clock-active {
+
+}
+.flip-clock-divider {
+    float: left;
+    display: inline-block;
+    position: relative;
+    width: 25px;
+    height: 70px;
+}
+.flip-clock-divider:first-child {
+    width: 0; }
+.flip-clock-dot {
+    display: block;
+    background: rgba(255,255,255,.5);
+    width: 8px;
+    height: 8px;
+    position: absolute;
+    border-radius: 50%;
+    left: 8px;
+}
+.flip-clock-divider .flip-clock-label {
+    position: absolute;
+    top: -2em;
+    right: -86px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+}
+.flip-clock-divider.minutes .flip-clock-label {
+    right: -88px; }
+
+.flip-clock-divider.seconds .flip-clock-label {
+    right: -91px; }
+
+.flip-clock-dot.top {
+    top: 23px;
+}
+.flip-clock-dot.bottom {
+    bottom: 23px;
+}
+@media(max-width: 767px){
+    .flip-clock-wrapper ul {
+        width: 70px;
+        height: 50px;
+    }
+    .flip-clock-wrapper ul li {
+        line-height: 48px;
+    }
+    .flip-clock-wrapper ul li a div div.inn {
+        font-size: 30px;
+    }
+    .flip-clock-divider {
+        height: 50px;
+    }
+    .flip-clock-divider .flip-clock-label {
+        font-size: 12px;
+        right: -48px;
+    }
+    .flip-clock-divider.minutes .flip-clock-label {
+        right: -58px;
+    }
+    .flip-clock-divider.seconds .flip-clock-label {
+        right: -60px;
+    }
+    .flip-clock-dot {
+        background: #fff;
+        width: 5px;
+        height: 5px;
+        left: 2px;
+    }
+    .flip-clock-dot.top {
+        top: 28px;
+    }
+    .flip-clock-dot.bottom {
+        bottom: 28px;
+    }
+}

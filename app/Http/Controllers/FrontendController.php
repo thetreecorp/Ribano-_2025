@@ -1,0 +1,678 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Content;
+use App\Models\Gateway;
+use App\Models\Language;
+use App\Models\Template;
+use App\Models\ManagePlan;
+use App\Models\Subscriber;
+use App\Models\Project;
+use App\Models\PayMoney;
+use App\Http\Traits\Notify;
+use Illuminate\Http\Request;
+use App\Models\ContentDetails;
+use Stevebauman\Purify\Facades\Purify;
+use Illuminate\Support\Facades\Validator;
+use App\Console\Commands\UpdateBadgeCron;
+use App\Http\Traits\Common;
+use App\Models\TemplateMedia;
+use App\Models\SendTokenLog;
+use App\Models\NearAccountKey;
+use App\Models\User;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
+
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
+class FrontendController extends Controller
+{
+    use Notify, Common;
+
+    public function __construct()
+    {
+        $this->theme = template();
+        $this->cache_time = config('constants.options.cache_time') ?? 86400;
+    }
+
+    public function index()
+    {
+
+        $templateSection = ['hero', 'about-us', 'why-chose-us', 'how-it-work', 'how-we-work', 'know-more-us', 'deposit-withdraw', 'news-letter', 'news-letter-referral', 'testimonial', 'request-a-call', 'investor', 'blog', 'faq', 'we-accept', 'investment'];
+        //$data['templates'] = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+        
+        
+        $minutes = $this->cache_time;
+        
+        $data['templates'] = Cache::remember('templateMedia', $this->cache_time, function () use ($templateSection) {
+            //return Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+            
+            if (Cache::has('templateMedia')) {
+                return Cache::get('templateMedia');
+            } else {
+                $cache = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+                Cache::put('templateMedia', $cache, now()->addMinutes($this->cache_time));
+                return $cache;
+            }
+            
+        });
+        
+        $contentSection = ['feature', 'home-slider', 'why-chose-us', 'how-it-work', 'how-we-work', 'know-more-us', 'testimonial', 'investor', 'blog', 'faq'];
+        
+        
+        $data['contentDetails'] = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+       
+        // Cache
+        
+        //dd(Cache::get('contentDetails'));
+        
+        // $data['contentDetails'] = Cache::remember('contentDetails', $this->cache_time, function () use ($contentSection) {
+
+        //     if (Cache::has('contentDetails')) {
+        //         return Cache::get('contentDetails');
+        //     } else {
+        //         $cache = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+        //             ->whereHas('content', function ($query) use ($contentSection) {
+        //                 return $query->whereIn('name', $contentSection);
+        //             })
+        //             ->with(['content:id,name',
+        //                 'content.contentMedia' => function ($q) {
+        //                     $q->select(['content_id', 'description']);
+        //                 }])
+        //             ->get()->groupBy('content.name');
+        //         Cache::put('contentDetails', $cache, now()->addMinutes($this->cache_time));
+        //         return $cache;
+        //     }
+
+        //     // return ContentDetails::select('id', 'content_id', 'description', 'created_at')
+        //     //     ->whereHas('content', function ($query) use ($contentSection) {
+        //     //         return $query->whereIn('name', $contentSection);
+        //     //     })
+        //     //     ->with(['content:id,name',
+        //     //         'content.contentMedia' => function ($q) {
+        //     //             $q->select(['content_id', 'description']);
+        //     //         }])
+        //     //     ->get()->groupBy('content.name');
+        // });
+
+
+        
+        
+        
+            
+        
+        //$data['gateways'] = Gateway::all();
+
+        // Cache
+        // $data['gateways'] = Cache::remember('gateway', $this->cache_time, function () use ($contentSection) {
+        //     //return Gateway::all();
+        //     if (Cache::has('gateway')) {
+        //         return Cache::get('gateway');
+        //     } else {
+        //         $cache = Gateway::all();
+        //         Cache::put('gateway', $cache, now()->addMinutes($this->cache_time));
+        //         return $cache;
+        //     }
+        // });
+        
+        
+        $how_it_work = TemplateMedia::where('section_name', 'how-it-work')->first();
+        
+        
+        // Cache
+        // $how_it_work = Cache::remember('how_it_work', $this->cache_time, function () use ($contentSection) {
+        //     //return TemplateMedia::where('section_name', 'how-it-work')->first();
+        //     if (Cache::has('how_it_work')) {
+        //         return Cache::get('how_it_work');
+        //     } else {
+        //         $cache = TemplateMedia::where('section_name', 'how-it-work')->first();
+        //         Cache::put('how_it_work', $cache, now()->addMinutes($this->cache_time));
+        //         return $cache;
+        //     }
+        // });
+        
+       
+        
+        $data['how_it_work'] = $how_it_work;
+        
+        // $data['plans'] = ManagePlan::where(['status' => 1, 'featured' => 1])->get();
+        // Cache
+        $data['plans'] = Cache::remember('plans', $this->cache_time, function () use ($contentSection) {
+            //return ManagePlan::where(['status' => 1, 'featured' => 1])->get();
+            if (Cache::has('plans')) {
+                return Cache::get('plans');
+            } else {
+                $cache = ManagePlan::where(['status' => 1, 'featured' => 1])->get();
+                Cache::put('plans', $cache, now()->addMinutes($this->cache_time));
+                return $cache;
+            }
+        });
+        
+        return view($this->theme . 'home', $data);
+    }
+    
+    public function flipBook($slug) {
+        
+            $isPdf = Str::endsWith($slug, '.pdf');
+        
+        if ($isPdf) {
+            $folder = explode('.', $slug);
+            $folder = $folder[0];
+        } else {
+            $folder = $slug;
+        }
+        $folderPath = public_path("catalogues/documents/" .$folder);
+        //dd(($folderPath));
+       
+        if (!is_dir($folderPath)) {
+            exit("folder not found");
+            
+        } else {
+            
+            return view('catalogues.index', compact('folder'));
+        }
+            
+        }
+
+    public function showStaticPage($page)
+    {
+        //dd($page);
+        $path = public_path("email_templates/kemedar/{$page}");
+
+        if (file_exists($path)) {
+            return View::file($path);
+        } else {
+            abort(404);
+        }
+    }
+    
+    public function viewEmail($lang)
+    {  
+        return view('view-email.' . $lang);
+    }
+
+    public function viewProject($slug)
+    { 
+        //$findProject = Project::where('slug', $slug)->first();
+        
+        
+        $findProject = Cache::remember('findProject' . $slug, config('constants.options.cache_minutes'), function () use ($slug) {
+            if (Cache::has('findProject' . $slug)) {
+                return Cache::get('findProject' . $slug);
+            } else {
+                $cache = Project::where('slug', $slug)->first();
+                Cache::put('findProject' . $slug, $cache, now()->addMinutes(config('constants.options.cache_minutes')));
+                return $cache;
+            }
+        });
+        
+        
+        if(!$findProject)
+            return abort(404);
+        
+        $data = [];
+        $title = $findProject->title;
+        $token = $findProject->token ? $findProject->token : 0;
+        
+       // $findToken = ManagePlan::where('project_id', $findProject->id)->first();
+
+        $findToken = Cache::remember('findToken' . $findProject->id, config('constants.options.cache_minutes'), function () use ($findProject) {
+            if (Cache::has('findToken' . $findProject->id)) {
+                return Cache::get('findToken' . $findProject->id);
+            } else {
+                $cache = ManagePlan::where('project_id', $findProject->id)->first();
+                Cache::put('findToken' . $findProject->id, $cache, now()->addMinutes(config('constants.options.cache_minutes')));
+                return $cache;
+            }
+        });
+
+
+
+        
+        //$similarProject = Project::whereNotIn('id', array($findProject->id))->where('status', 1)->get();
+        
+        $similarProject = Cache::remember('similarProject' . $findProject->id, config('constants.options.cache_minutes'), function () use ($findProject) {
+            if (Cache::has('similarProject' . $findProject->id)) {
+                return Cache::get('similarProject' . $findProject->id);
+            } else {
+                $cache = Project::whereNotIn('id', array($findProject->id))->where('status', 1)->take(12)->get();
+                Cache::put('similarProject' . $findProject->id, $cache, now()->addMinutes(config('constants.options.cache_minutes')));
+                return $cache;
+            }
+        });
+        
+        $tokenBuy = PayMoney::where('project_id', $findProject->id)->sum('total');
+        
+        
+        // image
+        $perPage = 12;
+        $imagesPerPage = $videosPerPage  =[];
+        $totalPages = 0;
+        $totalItem = $totalVideosPages = 0;
+        $page = 1;
+        $totalVideoItem = 0;
+        if($findProject->images) {
+            $images = explode("%###%", $findProject->images);
+            $imagesPerPage = array_slice($images, ($page - 1) * $perPage, $perPage);
+            $totalPages = ceil(count($images) / $perPage);
+            $totalItem = count($images);
+        }
+        if($findProject->add_video) {
+            $videos = json_decode($findProject->add_video, true);
+            $videosPerPage = array_slice($videos, ($page - 1) * $perPage, $perPage);
+            $totalVideosPages = ceil(count($videos) / $perPage);
+            $totalVideoItem = count($videos);
+        }
+
+       // dd($totalPages);
+
+        $ownerAdress = '';
+        $findAccount = NearAccountKey::where("token_id", $findToken->id ?? -1)->first();
+        
+        if($findAccount)
+            $ownerAdress = $findAccount['name'];
+        
+        
+        if($findToken)
+            $tokenBuy = SendTokenLog::where('token_id', $findToken->id)->sum('number_token');
+
+        $total_investment = 0;
+
+        if(is_numeric(unformatNumber($findProject->as_investments)))
+            $total_investment = unformatNumber($findProject->as_investments);
+
+        if($findProject->add_more_investment) {
+            $add_more_investment = json_decode($findProject->add_more_investment, true);
+
+            $array_name_section = $array_content_section = [];
+            $final_array = [];
+            foreach ($add_more_investment as $key => $value) {
+                array_push($array_name_section, key_exists(0, $value) ? $value[0] : NULL);
+                array_push($array_content_section, key_exists(1, $value) ? $value[1] : NULL);
+
+                $final_array[$key] = $key;
+                
+                if (is_numeric(unformatNumber($value[1]))) {
+                    $total_investment += floatval(unformatNumber($value[1]));
+                }
+            }
+           
+            
+        }
+        
+        // Get infor of client xeedwallet
+        
+        $owner_id = $findProject->user_id;
+        
+        // $find_key = User::where('id', $owner_id)->whereNotNull('id')->first();
+        
+        // $client = $find_key->xeedwallet_client_id ?? config('constants.options.paymoney_client_id');
+        // $secret = $find_key->xeedwallet_secret_id ?? config('constants.options.paymoney_client_secret');
+        
+        if($findProject->xeedwallet) {
+            $client = $findProject->xeedwallet->client_id ?? config('constants.options.paymoney_client_id');
+            $secret = $findProject->xeedwallet->secret ?? config('constants.options.paymoney_client_secret');
+        }
+        else {
+            $client = config('constants.options.paymoney_client_id');
+            $secret = config('constants.options.paymoney_client_secret');
+        }
+       
+        
+        return view('project.view', $data, compact('title', 'findProject', 'tokenBuy', 'similarProject', 'ownerAdress', 'total_investment', 'imagesPerPage', 'totalPages', 'totalItem', 'videosPerPage', 'totalVideosPages', 'totalVideoItem', 'client', 'secret'));
+        
+    } 
+    
+    public function createFolder($folderName)
+    {
+        
+        $currentDirectory = public_path(); 
+        $newFolderPath = $currentDirectory . '/' . $folderName;
+    
+        if (!File::isDirectory($newFolderPath)) {
+            
+            File::makeDirectory($newFolderPath, 0755, true);
+            return 1;
+        } 
+        
+        else {
+           
+            return 0;
+        }
+    }
+    
+    
+    
+    // ajax galleries
+    public function imagePagination(Request $request)
+    {
+        
+        $findProject = Project::where('id', $request->id)->first();
+        if($findProject && $findProject->images) {
+            $images = explode("%###%", $findProject->images);
+
+            $perPage = 12;
+            $page = $request->query('page', $request->page);
+    
+            $data = array_slice($images, ($page - 1) * $perPage, $perPage);
+    
+            // return response()->json([
+            //     'images' => $imagesPerPage,
+            //     'currentPage' => $page,
+            // ]); 
+            return response()->json(['view' => view('project.ajax.ajax_gallery_content', compact('data'))->render(), 'total' => count($images)]);
+        }
+    }
+    
+    // ajax galleries
+    public function videoPagination(Request $request)
+    {
+        
+        $findProject = Project::where('id', $request->id)->first();
+        if($findProject && $findProject->add_video) {
+            $add_video = json_decode($findProject->add_video, true);
+
+            $perPage = 12;
+            $page = $request->query('page', $request->page);
+    
+            $data = array_slice($add_video, ($page - 1) * $perPage, $perPage);
+
+            return response()->json(['view' => view('project.ajax.ajax_video_content', compact('data'))->render(), 'total' => count($add_video)]);
+        }
+    }
+    
+    
+    public function searchProject(Request $request)
+    { 
+       
+        $data = [];
+        $title = 'Search Project';
+        $projects = Project::paginate(12);
+        $total = $projects->total();
+        
+        // $min = $this->getPriceOption('min');
+        // $max = $this->getPriceOption('max');
+        $min = 1000;
+        $max = 5000000;
+
+        if($request->ajax()){
+           // return "AJAX";
+           // dd($request->all());
+            $data = $this->searchProjectFunc($request->all());
+            $total = $data->total() ?? 0;
+            $perPage = $data->perPage();
+            $totalResult = count($data->items());
+            $typeGrid = $request->type_gird ?? 'col-lg-4 col-6';
+            $sortBy = $request->sort_by ?? '';
+            $fromText = ($data->currentPage() -1 ) * $data->perpage() + 1;
+            $toText = (($data->currentpage()-1) * $data->perpage()) + $totalResult;
+
+            return response()->json(['view' => view('project.ajax.ajax_search_content', compact('data', 'typeGrid'))->render(), 'total' => $total, 'fromText' => $fromText, 'totalResult' => $totalResult, 'toText' => $toText, 'sortBy' => $sortBy]);
+        }
+        
+        return view('project.search', $data, compact('title', 'projects', 'total', 'min', 'max'));
+        
+    } 
+    
+    public function about()
+    {
+        $templateSection = ['about-us', 'investor', 'faq', 'we-accept', 'how-it-work', 'how-we-work', 'know-more-us', 'why-chose-us', 'testimonial', 'news-letter'];
+        $data['templates'] = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+
+        $contentSection = ['feature', 'why-chose-us', 'investor', 'faq', 'how-it-work', 'how-we-work', 'know-more-us', 'testimonial'];
+        $data['contentDetails'] = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+        $data['gateways'] = Gateway::all();
+        return view($this->theme . 'about', $data);
+    }
+
+
+    public function blog()
+    {
+        $data['title'] = "Blog";
+        $contentSection = ['blog'];
+
+        $templateSection = ['blog', 'news-letter'];
+        $data['templates'] = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+
+        $data['contentDetails'] = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+        return view($this->theme . 'blog', $data);
+    }
+
+    public function blogDetails($slug = null, $id)
+    {
+        $getData = Content::findOrFail($id);
+
+        $contentSection = [$getData->name];
+        $contentDetail = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->where('content_id', $getData->id)
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+
+        $singleItem['title'] = @$contentDetail[$getData->name][0]->description->title;
+        $singleItem['description'] = @$contentDetail[$getData->name][0]->description->description;
+        $singleItem['date'] = dateTime(@$contentDetail[$getData->name][0]->created_at, 'd M, Y');
+        $singleItem['image'] = getFile(config('location.content.path') . @$contentDetail[$getData->name][0]->content->contentMedia->description->image);
+
+
+        $contentSectionPopular = ['blog'];
+        $popularContentDetails = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->where('content_id', '!=', $getData->id)
+            ->whereHas('content', function ($query) use ($contentSectionPopular) {
+                return $query->whereIn('name', $contentSectionPopular);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+
+        return view($this->theme . 'blogDetails', compact('singleItem', 'popularContentDetails'));
+    }
+
+
+    public function faq()
+    {
+
+        $templateSection = ['faq', 'news-letter'];
+        $data['templates'] = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+
+        $contentSection = ['faq'];
+        $data['contentDetails'] = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+
+        $data['increment'] = 1;
+        return view($this->theme . 'faq', $data);
+    }
+
+    public function contact()
+    {
+        $templateSection = ['contact-us', 'news-letter'];
+        $data['templates'] = $templates = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+        $title = 'Contact Us';
+        $contact = @$templates['contact-us'][0]->description;
+
+        return view($this->theme . 'contact',  $data, compact('title', 'contact'));
+    }
+
+    public function contactSend(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|max:50',
+            'email' => 'required|email|max:91',
+            'subject' => 'required|max:100',
+            'message' => 'required|max:1000',
+        ]);
+        $requestData = Purify::clean($request->except('_token', '_method'));
+
+        $basic = (object)config('basic');
+        $basicEmail = $basic->sender_email;
+
+        $name = $requestData['name'];
+        $email_from = $requestData['email'];
+        $subject = $requestData['subject'];
+        $message = $requestData['message']."<br>Regards<br>".$name;
+        $from = $email_from;
+
+        $headers = "From: <$from> \r\n";
+        $headers .= "Reply-To: <$from> \r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+        $to = $basicEmail;
+
+        if (@mail($to, $subject, $message, $headers)) {
+            // echo 'Your message has been sent.';
+        } else {
+            //echo 'There was a problem sending the email.';
+        }
+
+        return back()->with('success', 'Mail has been sent');
+    }
+
+    public function getLink($getLink = null, $id)
+    {
+        $getData = Content::findOrFail($id);
+
+        $contentSection = [$getData->name];
+        $contentDetail = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->where('content_id', $getData->id)
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+
+        $title = @$contentDetail[$getData->name][0]->description->title;
+        $description = @$contentDetail[$getData->name][0]->description->description;
+        return view($this->theme . 'getLink', compact('contentDetail', 'title', 'description'));
+    }
+
+    public function subscribe(Request $request)
+    {
+        $rules = [
+            'email' => 'required|email|max:255|unique:subscribers'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return redirect(url()->previous() . '#subscribe')->withErrors($validator);
+        }
+        $data = new Subscriber();
+        $data->email = $request->email;
+        $data->save();
+
+        $msg = [
+            'email' => $data->email
+        ];
+
+        $action = [
+            "link" => route('admin.subscriber.index'),
+            "icon" => "fas fa-user text-white"
+        ];
+
+        $this->adminPushNotification('SUBSCRIBE_NEWSLETTER', $msg, $action);
+        $this->mailToAdmin($type = 'SUBSCRIBE_NEWSLETTER', [
+            'email' => $data->email,
+        ]);
+
+        return redirect(url()->previous() . '#subscribe')->with('success', 'Subscribed Successfully');
+    }
+
+    public function language($code)
+    {
+        $language = Language::where('short_name', $code)->first();
+        if (!$language) $code = 'US';
+        session()->put('trans', $code);
+        session()->put('rtl', $language ? $language->rtl : 0);
+        return redirect()->back();
+    }
+    
+    public function currency($code)
+    {
+       
+        session()->put('currency', $code);
+        return redirect()->back();
+    }
+    
+    public function country($code)
+    {
+       
+        session()->put('country', $code);
+        return redirect()->back();
+    }
+
+
+    public function planList()
+    {
+        if (auth()->user()) {
+            $data['extend_blade'] = $this->theme . 'layouts.user';
+        } else {
+            $data['extend_blade'] = $this->theme . 'layouts.app';
+        }
+
+        $data['plans'] = ManagePlan::where('status', 1)->get();
+
+        $templateSection = ['investment', 'calculate-profit', 'faq', 'we-accept', 'deposit-withdraw', 'why-chose-us', 'news-letter'];
+        $data['templates'] = Template::templateMedia()->whereIn('section_name', $templateSection)->get()->groupBy('section_name');
+
+        $contentSection = ['investment', 'calculate-profit', 'faq', 'we-accept', 'deposit-withdraw', 'why-chose-us'];
+        $data['contentDetails'] = ContentDetails::select('id', 'content_id', 'description', 'created_at')
+            ->whereHas('content', function ($query) use ($contentSection) {
+                return $query->whereIn('name', $contentSection);
+            })
+            ->with(['content:id,name',
+                'content.contentMedia' => function ($q) {
+                    $q->select(['content_id', 'description']);
+                }])
+            ->get()->groupBy('content.name');
+
+        session()->forget('amount');
+        session()->forget('plan_id');
+        $data['gateways'] = Gateway::all();
+
+        return view($this->theme . 'plan', $data);
+
+    }
+
+
+}

@@ -1,0 +1,281 @@
+blink {
+    -webkit-animation: 2s linear infinite condemned_blink_effect; // for android
+    animation: 2s linear infinite condemned_blink_effect;
+}
+@-webkit-keyframes condemned_blink_effect { // for android
+    0% {
+        visibility: hidden;
+    }
+    50% {
+        visibility: hidden;
+    }
+    100% {
+        visibility: visible;
+    }
+}
+@keyframes condemned_blink_effect {
+    0% {
+        visibility: hidden;
+    }
+    50% {
+        visibility: hidden;
+    }
+    100% {
+        visibility: visible;
+    }
+}
+.auto-update-msg-txt{
+    font-size: 32px;
+    margin-bottom: 36px;
+    display: block;
+}
+.auto-update-exception-txt{
+    font-size: 32px;
+    margin-bottom: 36px;
+    display: block;
+}
+.auto-update-version{
+    font-size:18px;
+    line-height: 28px;
+}
+.auto-update-warning-text{
+    color:#8a4246;
+    background-color:#ffedb6;
+    border: 2px dotted #ffd479;
+    border-radius:5px;
+    padding:15px;
+    margin-bottom:20px;
+}
+.email_sender_cronjob_view{
+    margin: 0px 0px 10px 0px;
+    background: #997300;
+    padding: 10px;
+    color: #fff;
+    border: 3px dashed #1c506c;
+}
+.panel-navy-blue{
+    background: #1b1464;
+    color: #fff;
+}
+.panel-orenge{
+    background: #f8931f;
+    color: #fff;
+}
+
+.panel-blue{
+    background: #0071bd;
+    color: #fff;
+}
+.panel-sky{
+    background: #00a99e;
+    color: #fff;
+}
+.panel-four{
+    background: #C50B3E;
+    color: #fff;
+}
+.panel-five {
+    background: #86C20C;
+    color: #fff;
+}
+.panel-six {
+    background: #033641;
+    color: #fff;
+}
+.panel-seven{
+    background: #2a524f;
+    color: #fff;
+}
+.panel-slategrey{
+    background-color: slategrey;
+    color: #fff;
+}
+.panel-violet{
+    background-color: violet;
+    color: #fff;
+}
+.panel-sienna{
+    background-color: sienna;
+    color: #fff;
+}
+.panel-tomato{
+    background-color: tomato;
+    color: #fff;
+}
+/* The container */
+.i-check {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.i-check input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+}
+
+/* When the checkbox is checked, add a blue background */
+.i-check input:checked ~ .checkmark {
+    background-color: #37a000;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.i-check input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.i-check .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 8px;
+    height: 14px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.margin-80-20-40-20{
+    margin:80px 20px 40px 20px
+}
+.gourl_cryptobox_error{
+    margin:70px;
+    display:none
+}
+.display-none{
+    display: none;
+}
+.margins-bottom-20{
+    margin-bottom:20px
+}
+.gourl_wallet_url_parent{
+    float:right;
+    margin-bottom:0px
+}
+.margin-left-25{
+    margin-left: 25px;
+}
+.margin-10-20{
+    margin:10px 20px;
+}
+.gourl-float-right-margin-left-10{
+    float:right;
+    margin-left:10px
+}
+.gourl_paidimg{
+    float:left;
+}
+.border-0{
+    border:0;
+}
+.gourl_paymentcaptcha_successful{
+    color:#3caf00;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:22px;
+    line-height:35px;
+    font-weight:bold;
+}
+.gourl_button_details{
+    margin:10px 20px
+}
+.positive {
+    color: #35a947;
+}
+.negative {
+    color: red;
+}
+.price_updown{font-size: 26px;font-weight: normal;}
+.price_updown i{font-weight: normal;}
+.panel-one{background: #f8931f;color: #fff;}
+.panel-two{background: #1b1464;color: #fff;}
+.panel-three{color: #fff;background: #0071bd;}
+html { font-size: 14px; }
+@media (min-width: 768px) { html { font-size: 16px; } .tooltip-inner { max-width: 350px; } }
+.mncrpt .container { max-width: 980px; }
+.mncrpt .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+img.radioimage-select { padding: 7px; border: solid 2px #ffffff; margin: 7px 1px; cursor: pointer; box-shadow: none; }
+img.radioimage-select:hover { border: solid 2px #a5c1e5; }
+img.radioimage-select.radioimage-checked { border: solid 2px #7db8d9; background-color: #f4f8fb; }
+.margin-top-25{
+    margin-top: 25px
+}
+.margin-top-10{
+    margin-top: 10px
+}
+.margin-top-5{
+    margin-top: 5px
+}
+.red{
+    border:1px red solid;
+}
+.green-yellow{
+    background: greenyellow !important;
+}
+.max-width-calc{
+    max-width: calc(100% - 180px);
+}
+.font-size-12{
+    font-size: 12px;
+}
+.padding-left-0{
+    padding-left: 0;;
+}
+.background-darkgray{
+    background: darkgray;
+}
+.white-paper-ifrma{
+    width: 100%;
+    height: 450px;
+    border: none;
+}
+.height-450{
+    height:450px
+}
+.display-none{
+    display: none;
+}
+.margin-top-25{
+    margin-top: 25px;
+}
+.margin-top-10{
+    margin-top: 10px;
+}
+.font-size-19{
+    font-size: 19px;
+}
+.display-table-cell{
+    display: table-cell !important;
+}
+.font-family-inherit{
+    font-family: inherit;
+}
+.font-weight-normal{
+    font-weight:normal;
+}

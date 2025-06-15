@@ -1,0 +1,216 @@
+<?php
+
+namespace App\Models;
+
+use App\Http\Traits\Notify;
+use Carbon\Carbon;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Spatie\Permission\Traits\HasRoles;
+use App\Models\SendTokenLog;
+class User extends Authenticatable implements MustVerifyEmail, JWTSubject
+{
+    use Notifiable, HasRoles, Notify;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = ['id'];
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    public $allusers = [];
+
+    protected $appends = ['fullname', 'mobile'];
+
+    protected $dates = ['sent_at'];
+
+    public function getFullnameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+
+    public function getMobileAttribute()
+    {
+        return $this->phone_code . $this->phone;
+    }
+
+    public function funds()
+    {
+        return $this->hasMany(Fund::class)->latest()->where('status', '!=', 0)->where('plan_id', null);
+    }
+
+    
+    public function total_invest()
+    {
+        $user_id = $this->id;
+        $totalSum = SendTokenLog::where('user_id', $user_id)->sum('total_amount');
+        
+        return $totalSum = $totalSum ?? 0;
+        
+    }
+
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class)->latest();
+    }
+
+    public function ticket()
+    {
+        return $this->hasMany(Ticket::class, 'user_id');
+    }
+    
+    public function withdraw()
+    {
+        return $this->hasMany(WithdrawRequest::class, 'user_id');
+    }
+    
+    public function token_invest()
+    {
+        return $this->hasMany(SendTokenLog::class, 'user_id');
+    }
+    
+    public function list_investors()
+    {
+        return $this->hasMany(ShortListInvestor::class, 'user_id');
+    }
+    
+    public function list_project()
+    {
+        return $this->hasMany(ShortListProject::class, 'user_id');
+    }
+
+    public function payout()
+    {
+        return $this->hasMany(PayoutLog::class, 'user_id');
+    }
+
+
+    public function referral()
+    {
+        return $this->belongsTo(User::class, 'referral_id');
+    }
+
+    public function siteNotificational()
+    {
+        return $this->morphOne(SiteNotification::class, 'siteNotificational', 'site_notificational_type', 'site_notificational_id');
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->mail($this, 'PASSWORD_RESET', $params = [
+            'message' => '<a href="' . url('password/reset', $token) . '?email=' . $this->email . '" target="_blank">Click To Reset Password</a>'
+        ]);
+    }
+
+
+    public function getReferralLinkAttribute()
+    {
+        return $this->referral_link = route('register', ['ref' => $this->username]);
+    }
+
+
+    public function referralBonusLog()
+    {
+        return $this->hasMany(ReferralBonus::class, 'from_user_id', 'id');
+    }
+
+
+    public function invests()
+    {
+        return $this->hasMany(Investment::class)->latest();
+    }
+    
+    public function payMoneys()
+    {
+        return $this->hasMany(PayMoney::class)->latest();
+    }
+
+    public function rank()
+    {
+        return $this->hasOne(Ranking::class,'rank_lavel', 'last_lavel');
+    }
+
+    public function scopeLevel()
+    {
+        $count = 0;
+        $user_id = $this->id;
+        while ($user_id != null) {
+            $user = User::where('referral_id', $user_id)->first();
+            if (!$user) {
+                break;
+            } else {
+                $user_id = $user->id;
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    public function referralUsers($id, $currentLevel = 1)
+    {
+        $users = $this->getUsers($id);
+        if ($users['status']) {
+            $this->allusers[$currentLevel] = $users['user'];
+            $currentLevel++;
+            $this->referralUsers($users['ids'], $currentLevel);
+        }
+        return $this->allusers;
+    }
+
+    public function getUsers($id)
+    {
+        if (isset($id)) {
+            $data['user'] = User::whereIn('referral_id', $id)->get(['id', 'firstname', 'lastname', 'username', 'email', 'phone_code', 'phone', 'referral_id', 'created_at']);
+            if (count($data['user']) > 0) {
+                $data['status'] = true;
+                $data['ids'] = $data['user']->pluck('id');
+                return $data;
+            }
+        }
+        $data['status'] = false;
+        return $data;
+    }
+
+
+}

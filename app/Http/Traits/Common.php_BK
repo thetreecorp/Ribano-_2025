@@ -1,0 +1,432 @@
+<?php
+
+namespace App\Http\Traits;
+
+use Intervention\Image\Facades\Image;
+use Illuminate\Http\Request;
+use App\Models\Project;
+use App\Models\ManagePlan;
+use App\Models\ProjectStage;
+use App\Models\IndustryCategory;
+use App\Models\PayMoney;
+use App\Models\User;
+use Cache;
+use App\Models\Currency;
+trait Common
+{
+
+    
+
+    public function checkImageType($path)
+    {
+        $imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief','jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
+        $path = $path ?? '';
+        $explodeImage = explode('.', $path);
+        $extension = end($explodeImage);
+        
+        if(in_array($extension, $imageExtensions))
+            return true;
+        return false;
+    }
+    
+    function getCurrencies() {
+        $currencies = Cache::rememberForever('currencies', function () {
+            return Currency::where('status', 1)->get();
+        });
+        
+        return $currencies;
+    }
+    
+    function checkProjectPermission() {
+        $roles = auth()->user()->getRoleNames()->toArray();
+        //dd($roles);
+        if(in_array('founder',  $roles))
+            return 1;
+        return 0;
+    }
+    
+    function returnStages($string) {
+        $returnA = [];
+        if($string) {
+            $ids = explode(',', $string);
+            foreach ($ids as $key => $value) {
+                $stages = ProjectStage::where('id', $value)->first();
+                if($stages)
+                    array_push($returnA, $stages->name);
+            }
+        }
+        return $returnA;
+    }
+    
+    function returnIndustryCategory($string) {
+        $returnA = [];
+        if($string) {
+            $ids = explode(',', $string);
+            foreach ($ids as $key => $value) {
+                $cat = IndustryCategory::where('id', $value)->first();
+                if($cat)
+                    array_push($returnA, $cat->name);
+            }
+        }
+        return $returnA;
+    }
+    
+    function returnLocation($string) { 
+        $returnA = [];
+        $myCollection = collect(config('country'))->map(function($row) {
+            return collect($row);
+        });
+        $countries = $myCollection->sortBy('code');
+        
+        if($string) {
+            $ids = explode(',', $string);
+            foreach(config('country') as $value) {
+                if(in_array($value['code'], $ids))
+                    array_push($returnA, $value['name']);
+            }
+            
+        
+            
+        }
+        return $returnA;
+
+        
+    }
+    
+    
+    function generateVideoEmbedUrl($url){
+   
+        $finalUrl = '';
+        if(strpos($url, 'facebook.com/') !== false) {
+            //it is FB video
+            $finalUrl.='https://www.facebook.com/plugins/video.php?href='.rawurlencode($url).'&show_text=1&width=200';
+        }else if(strpos($url, 'vimeo.com/') !== false) {
+            //it is Vimeo video
+            $videoId = explode("vimeo.com/",$url)[1];
+            if(strpos($videoId, '&') !== false){
+                $videoId = explode("&",$videoId)[0];
+            }
+            $finalUrl.='https://player.vimeo.com/video/'.$videoId;
+        }else if(strpos($url, 'youtube.com/') !== false) {
+            //it is Youtube video
+            $videoId = explode("v=",$url)[1];
+            if(strpos($videoId, '&') !== false){
+                $videoId = explode("&",$videoId)[0];
+            }
+            $finalUrl.='https://www.youtube.com/embed/'.$videoId;
+        }else if(strpos($url, 'youtu.be/') !== false){
+            //it is Youtube video
+            $videoId = explode("youtu.be/",$url)[1];
+            if(strpos($videoId, '&') !== false){
+                $videoId = explode("&",$videoId)[0];
+            }
+            $finalUrl.='https://www.youtube.com/embed/'.$videoId;
+        }else{
+            return null;
+        }
+        return $finalUrl;
+    }
+    
+    function getPriceOption($type)
+    {
+        if($type == 'min')
+            $price = Cache::remember('project.minPrice', '86400', function () {
+                return Project::get()
+                    ->filter(fn ($value) => is_numeric($value->raising))
+                    ->min('raising');
+            });
+        else
+            $price = Cache::remember('project.maxPrice', '86400', function () {
+                return Project::get()
+                    ->filter(fn ($value) => is_numeric($value->raising))
+                    ->max('raising');
+            });
+        return (int)$price;
+    }
+    
+    // get minium investor
+    function getPriceInvestorOption($type)
+    {
+        if($type == 'min')
+            $price = Cache::remember('investor.minPrice', '86400', function () {
+                return User::get()
+                    ->filter(fn ($value) => is_numeric($value->minimum_investment))
+                    ->min('minimum_investment');
+            });
+        else
+            $price = Cache::remember('investor.maxPrice', '86400', function () {
+                return User::get()
+                    ->filter(fn ($value) => is_numeric($value->maximum_investment))
+                    ->max('maximum_investment');
+            });
+        return (int)$price;
+    }
+    
+    function getProjectFeatured() {
+        //return Project::where('is_featured', 1)->limit(3)->get();
+        if (Cache::has('featured')) {
+            return Cache::get('featured');
+        } else {
+            $cache = Project::where('is_featured', 1)->limit(3)->get();
+            Cache::put('featured', $cache, now()->addMinutes(config('constants.options.cache_time') ?? 86400));
+            return $cache;
+        }
+    }
+
+    public function searchProjectFunc($args)
+    {
+        $paged = $args['page'] ?? 1;
+        $projects = Project::query();
+        // keyword
+        if (array_key_exists('keyword', $args) && $args['keyword']) {
+            $keyword = $args['keyword'];
+            $projects  = $projects->where('title', 'like', '%' . $keyword . '%');
+        }
+        if (array_key_exists('min-price', $args) && $args['min-price'] && array_key_exists('max-price', $args) && $args['max-price']) {
+            $minPrice = $args['min-price'];
+            $maxPrice = $args['max-price'];
+            $projects  = $projects->whereBetween('raising', [(int)$minPrice, (int)$maxPrice]);
+        }
+        if (array_key_exists('countries', $args) && $args['countries'] ) {
+            
+            $projects  = $projects->whereIn('country', $args['countries']);
+        }
+        if (array_key_exists('locations', $args) && $args['locations'] ) {
+            
+            $projects  =  $projects->whereIn('located', $args['locations']);
+        }
+        if (array_key_exists('industries', $args) && $args['industries'] ) {
+            $industries = $args['industries'];
+            $projects  =  $projects->where(function ($query) use ($industries) {
+                $query->whereIn('industry_1', $industries)
+                ->orWhereIn('industry_2', $industries);
+            });
+        }
+        if (array_key_exists('stages', $args) && $args['stages'] ) {
+            
+            $projects  =  $projects->whereIn('stages', $args['stages']);
+        }
+        if (array_key_exists('equity_checked', $args) && $args['equity_checked'] ) {
+            
+            $projects  =  $projects->where('equity_checked', $args['equity_checked']);
+        }
+        if (array_key_exists('convertible_notes_checked', $args) && $args['convertible_notes_checked'] ) {
+            
+            $projects  =  $projects->where('convertible_notes_checked', $args['convertible_notes_checked'] );
+        }
+
+        $projects = $projects->paginate(12, ['*'], 'page', $paged);
+
+        return $projects;
+    }
+    
+    public function searchUserFunc($args)
+    {
+        $user_id = auth()->user()->id ?? 0 ;
+        $paged = $args['page'] ?? 1;
+        $users = User::query();
+            $users = $users->where('id', '!=', $user_id);
+        if($user_id)
+            
+        
+        // keyword
+        if (array_key_exists('keyword', $args) && $args['keyword']) {
+            $keyword = $args['keyword'];
+            $users  = $users->where('about', 'like', '%' . $keyword . '%')->orWhere('my_company', 'like', '%' . $keyword . '%')
+            ->orWhere('my_area', 'like', '%' . $keyword . '%');
+        }
+        if (array_key_exists('min-price', $args) && $args['min-price'] && array_key_exists('max-price', $args) && $args['max-price']) {
+            $minPrice = $args['min-price'];
+            $maxPrice = $args['max-price'];
+            $users  = $users->whereBetween('minimum_investment', [(int)$minPrice, (int)$maxPrice])->orWhereBetween('maximum_investment', [(int)$minPrice, (int)$maxPrice]);
+        }
+        if (array_key_exists('countries', $args) && $args['countries'] ) {
+            $countries = $args['countries'];
+           // $users  = $users->whereIn('countries', $args['countries']);
+            $users  = $users->where(function($query) use($countries) {
+                foreach($countries as $c) {
+                    $query->orWhere('countries', 'like', "%$c%");
+                };
+            });
+        }
+        if (array_key_exists('locations', $args) && $args['locations'] ) {
+            
+            //$users  =  $users->whereIn('location', $args['locations']);
+            $locations = $args['locations'];
+            $users  = $users->where(function($query) use($locations) {
+                foreach($locations as $c) {
+                    $query->orWhere('location', 'like', "%$c%");
+                };
+            });
+        }
+        if (array_key_exists('industries', $args) && $args['industries'] ) {
+            $industries = $args['industries'];
+            // $users  =  $users->where(function ($query) use ($industries) {
+            //     $query->whereIn('industry_category', $industries)
+            // });
+            $users  = $users->where(function($query) use($industries) {
+                foreach($industries as $c) {
+                    $query->orWhere('industry_category', 'like', "%$c%");
+                };
+            });
+        }
+
+
+        $users = $users->paginate(12, ['*'], 'page', $paged);
+
+        return $users;
+    }
+    
+    public function getLinkIdrive($path)
+    {
+        //return \Storage::disk('s3')->temporaryUrl($path, '+1225 minutes');
+        if (Cache::has($path)) {
+            $temporaryUrl = Cache::get($path);
+        } else {
+            // Generate a new temporary URL and cache it
+            $temporaryUrl = \Storage::disk('s3')->temporaryUrl($path, '+1225 minutes');
+            Cache::put($path, $temporaryUrl, now()->addMinutes(1225));
+        }
+        return $temporaryUrl;
+    }
+    // public function getLinkIdrive($path)
+    // {
+    //     return \Storage::temporaryUrl($path, now()->addMinutes(15));
+    // }
+    
+    
+    public function getLocationsOption() {
+        $location = [
+            "Outside Middle East",
+            "Afghanistan",
+            "Armenia",
+            "Azerbaijan",
+            "Bahrain",
+            "Brunei",
+            "Egypt",
+            "Iran",
+            "Israel",
+            "Jordan",
+            "Kazakhstan",
+            "Kuwait",
+            "Kyrgyzstan",
+            "Lebanon",
+            "Oman",
+            "Palestine",
+            "Qatar",
+            "Saudi Arabia",
+            "Syria",
+            "Turkmenistan",
+            "UAE",
+            "Yemen",
+        ];
+        return $location;
+    }
+    
+    public function getAddInvestment() {
+        return [
+            "Fixed assets",
+            "Salaries",
+            "Goods",
+            "Marketing",
+            "Other"
+            // "Total of investment needed Sum of all",
+            // "Total shares of the company",
+            // "Price of share",
+            // "Shares granted for this investment",
+        ];
+    }
+    
+    function getIndustries() {
+        $industries = IndustryCategory::get();
+        
+        if($industries)
+            return $industries;
+        return [
+            "Agriculture",
+            "Business Services",
+            "Education Training",
+            "Energy Natural Resources",
+            "Entertainment Leisure",
+            "Fashion Beauty",
+            "Finance",
+            "Food Beverage",
+            "Hospitality, Restaurants Bars",
+            "Manufacturing Engineering",
+            "Media",
+            "Medical Sciences",
+            "Personal Services",
+            "Products Inventions",
+            "Property",
+            "Retail",
+            "Sales Marketing",
+            "Software",
+            "Technology",
+            "Transportation"
+        ];
+       
+    }
+    
+    function getStages() {
+        $states = ProjectStage::get();
+        if($states)
+            return $states;
+        return [
+            "Pre-Startup/R&D",
+            "MVP/Finished Product",
+            "Achieving Sales",
+            "Breaking Even",
+            "Profitable",
+            "Other"
+        ];
+       
+    }
+
+    function sumToken($project_id) {
+        return PayMoney::where('project_id', $project_id)->sum('total') ?? 0;
+        // return Cache::remember('project_id' . $project_id, config('constants.options.cache_minutes'), function () use ($project_id) {
+        //     if (Cache::has('project_id' . $project_id)) {
+        //         return Cache::get('project_id' . $project_id);
+        //     } else {
+        //         $cache = PayMoney::where('project_id', $project_id)->sum('total') ?? 0;
+        //         Cache::put('project_id' . $project_id, $cache, now()->addMinutes(config('constants.options.cache_minutes')));
+        //         return $cache;
+        //     }
+        // });
+    }
+    
+    
+    
+    function getTokenName($project_id) {
+        $plan = ManagePlan::where('project_id', $project_id)->get('name')->first();
+        if($plan)
+            return $plan->name;
+        return 'N/A';
+       
+    }
+    
+    function getInvestorRole() {
+        return [
+            "Silent",
+            "Daily Involvement",
+            "Weekly Involvement",
+            "Monthly Involvement",
+            "Any",
+        ];
+       
+    }
+    function getInvestmentType() {
+        return [
+            "Fixed assets xxx",
+            "Salaries",
+            "Goods",
+            "Marketing",
+            "Other",
+        ];
+       
+    }
+
+    
+
+}
+
