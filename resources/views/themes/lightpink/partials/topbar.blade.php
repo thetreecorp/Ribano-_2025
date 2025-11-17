@@ -3,15 +3,15 @@
     $currency_code = Session::get('currency_code');
     $currencies = $common->getCurrencies();
     $lang_code = $lang = Session::get('trans');
-    
-    
-    
+
+
+
     $get_currency = (Session::get('currency')) ? (Session::get('currency')) : 'USD';
-   
+
     $languageArray = json_decode($languages, true) ? json_decode($languages, true) : array();
     if(array_key_exists( $lang, $languageArray))
     $lang = $languageArray[$lang];
-    
+
 
 @endphp
 <!-- Header_area_start -->
@@ -90,32 +90,32 @@
             <div class="custom-top-head">
                 <div class="col-md-12">
                     <div class="header_top_right d-flex justify-content-md-end justify-content-center align-items-center">
-                        
+
                         <div class="currencies-select">
-                        
-                        
+
+
                             @if($currencies)
                             <select class="form-control">
                                 @foreach ($currencies as $key => $currency)
                                 <option value="{{ $currency->code }}" @if ($currency->code == $get_currency) selected
                                     @endif
-                        
+
                                     data-currency="{{ $currency->code }}">{{ $currency->name }}
                                     ({{ $currency->symbol }})
-                        
+
                                 </option>
                                 @endforeach
                             </select>
                             @endif
                         </div>
-                        
+
                         <div class="language_select_area">
                             <div class="dropdown">
                                 <button class="custom_dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                     aria-expanded="false">
                                     <?php echo $lang ? $lang : 'Eng' ?>
                                 </button>
-                
+
                                 <ul class="dropdown-menu">
                                     @foreach ($languageArray as $key => $lang)
                                     <li><a class="dropdown-item" href="{{route('language',$key)}}"><span
@@ -125,8 +125,8 @@
                                 </ul>
                             </div>
                         </div>
-                        
-                       
+
+
                     </div>
                 </div>
             </div>
@@ -153,7 +153,7 @@
                             <a class="nav-link" href="{{ route('home') }}"> {{@translate('Home')}}</a>
                         </li>
                         <li class="nav-item dropdown">
-                            
+
                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                 data-bs-auto-close="outside">{{@translate('Invest')}}
                                 <i class="fas fa-comments-dollar"></i>
@@ -193,7 +193,7 @@
                                         <a class="dropdown-item {{Request::routeIs('contact') ? 'active' : ''}}"
                                             href="{{route('investorSearch')}}">{{@translate('Investor Search')}}</a>
                                     </li>
-                               
+
 
                                 @else
                                     <li>
@@ -241,7 +241,7 @@
                         @guest
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}"> {{@translate('Sign in')}}</a>
-                                
+
                             </li>
                             <li class="nav-item">
                                 <a class="login_btn" href="{{ route('register') }}"> {{@translate('Sign up')}}</a>
@@ -251,27 +251,28 @@
                                 <a class="" href="{{ route('user.home') }}"> {{@translate('Dashboard')}}</a>
                             </li>
                         @endguest --}}
-                       
-                        
-                        
+
+
+
                     </ul>
                 </div>
             </div>
         </nav>
     </div>
+
     <!-- Nav_area_end -->
-    
+
     <div class="mobile">
         <div class="hamburger-menu">
-            <div class="bar"></div>	
+            <div class="bar"></div>
         </div>
-    </div>  
+    </div>
     <div class="mobile-nav hide">
         <ul>
             @include($theme.'partials.menu')
         </ul>
       </div>
-    
+
 </div>
 
 <!-- Header_area_end -->

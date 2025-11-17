@@ -6,29 +6,29 @@
         .tabs-menu{
             flex-wrap:wrap !important;
             gap:16px;
-        }    
-        
+        }
+
         .tab-link{
             margin:0;
         }
     </style>
-    
+
 @endpush
 
-<?php 
+<?php
     $have_you_raised = $findProject->have_you_raised;
     $getPriceToken = 1;
     if($findProject->token)
         $getPriceToken = $findProject->token->token_price ? $findProject->token->token_price : 1;
     if($common->sumToken($findProject->id))
-        $have_you_raised = (float)$common->sumToken($findProject->id)*(float)$getPriceToken; 
+        $have_you_raised = (float)$common->sumToken($findProject->id)*(float)$getPriceToken;
     $bg_img = $findProject->banner ? $common->getLinkIdrive($findProject->banner) : 'https://placehold.jp/1920x600.png';
 
     $token_symbol = "$";
 
     if($findProject->token)
         $token_symbol = $findProject->token->token_symbol;
-        
+
 
     $currency_symbol = session('currency') ?? '$';
     if($currency_symbol == 'USD')
@@ -87,8 +87,8 @@
             <ul class="tabs-menu">
 
                 <?php $question_answer = json_decode($findProject->question_answer, true); ?>
-                <?php 
-                 
+                <?php
+
                         $members = [];
                         if($findProject->team_members) {
                             $members = json_decode($findProject->team_members, true);
@@ -113,9 +113,9 @@
                         if(!$question_answer) {
                             $questions_style = "display: none";
                         }
-                        
-                        $arrayTab = [translate("Overview"), translate("Pitch Details"), translate("The Team"), translate("Data Room"), translate("Deal"), translate("Video"), translate("Galleries"), translate("Questions & Answers")]; 
-                        
+
+                        $arrayTab = [translate("Overview"), translate("Pitch Details"), translate("The Team"), translate("Data Room"), translate("Deal"), translate("Video"), translate("Galleries"), translate("Questions & Answers")];
+
                     ?>
                 {{-- @foreach ($arrayTab as $key => $val )
                 <li class="tab-link {{$key == 0 ? 'active' : ''}}" data-tab="{{$key + 1}}">
@@ -125,14 +125,14 @@
 
                 @foreach ($arrayTab as $key => $val )
 
-                <?php 
-                        
+                <?php
+
                             if($key == 7)
                                 $class = $questions_style;
-                            else 
-                                $class = ${convertToSnakeCase($val) . '_style'}; 
-                            
-                                
+                            else
+                                $class = ${convertToSnakeCase($val) . '_style'};
+
+
                         ?>
 
                 <li <?php echo 'style="' .$class.'"' ?> class="{{slug($val)}} tab-link {{$key == 0 ? 'active' : ''}}"
@@ -444,7 +444,7 @@
 
                             @endif
                             @if($findProject->custom_section)
-                            <?php 
+                            <?php
                                         $custom_section = json_decode($findProject->custom_section, true);
                                     ?>
                             @if ($custom_section)
@@ -484,7 +484,7 @@
 
 
                             @if($findProject->add_financials)
-                            <?php 
+                            <?php
                                         $add_financials = json_decode($findProject->add_financials, true);
                                     ?>
                             @if ($add_financials)
@@ -1136,8 +1136,8 @@
                 <div class="proposal-blocks">
                     <p><span class="editableLabel">{{translate('Overview')}}</span></p>
                     <div class="investment-summary">
-                        <?php 
-                            
+                        <?php
+
                                 $add_more_investment = json_decode($findProject->add_more_investment, true) ?? [];
                                 $more_investment = 'N/A';
                                 $key = 'Shares granted for this investment';
@@ -1145,8 +1145,8 @@
                                    $more_investment = $add_more_investment[$key];
                                 }
 
-                                
-                                    
+
+
                             ?>
                         <p><strong class="editableLabel">{{translate('Pitch Detail')}}</strong></p>
                         <table class="table">
@@ -1310,7 +1310,7 @@
                                 @endif --}}
 
 
-                                @if ($findProject->token && ($findProject->token->fixed_amount - $tokenBuy > 0))
+                                {{-- @if ($findProject->token && ($findProject->token->fixed_amount - $tokenBuy > 0)) --}}
 
 
                                     <tr>
@@ -1328,12 +1328,12 @@
                                                 <a href="{{ route('login') }}" class="btn btn-danger buy-now-button">{{translate('Login to Invest')}}</a>
                                             </td>
                                         @endguest
-                                        
-    
-    
+
+
+
                                     </tr>
-                                    
-                                    @else
+
+                                    {{-- @else --}}
                                         @guest
                                             <td colspan="2" style="border-bottom: none">
                                                 <a href="{{ route('login') }}" class="btn btn-danger buy-now-button">{{translate('Login to Invest')}}</a>
@@ -1341,8 +1341,8 @@
                                         @endguest
 
 
-                                @endif
-                                
+                                {{-- @endif --}}
+
                                 {{--
                                 @if ($ownerAdress)
                                 <tr>
@@ -1478,7 +1478,7 @@
                                     type="number" name="amount" max="{{$findProject->token->fixed_amount - $tokenBuy}}"
                                     value="" class="form-control" placeholder="0.00">
 
-                                
+
                             </div>
                             <div id="error-message" style="color: red;"></div>
                         </div>
@@ -1507,14 +1507,14 @@
     var maxInput = 0 ;
         var minInput = 1 ;
         var buyToken = 0 ;
-        
+
         @if ($findProject->token)
             maxInput = '{{$findProject->token->fixed_amount - $tokenBuy}}';
             minInput = '{{$findProject->token->min_buy_amount ?? 1}}';
         @endif
-        
-       
-        
+
+
+
         var home = '{{url("/")}}';
         // Display a success toast, with a title
         toastr.options = {
@@ -1535,11 +1535,11 @@
           "hideMethod": "fadeOut"
         }
 
-        Fancybox.bind('[data-fancybox="gallery"]', {});   
-        
+        Fancybox.bind('[data-fancybox="gallery"]', {});
+
         function maxInputFunc(maxInput) {
             $('input#max_token_input').on('input', function () {
-               
+
                 var value = $(this).val();
                 let price = '{{$findProject->token->token_price ?? 1}}';
                 buyToken = value = value.replace(/e|\+|\-/gi, '');
@@ -1557,15 +1557,15 @@
                         $('.sum-token').text(price*(parseInt(value)));
                     }, 1000);
                 }
-                
-                
+
+
             });
         }
         maxInputFunc(maxInput);
-        
+
         $("#invest_button").click(function () {
             var errorMessage = document.getElementById("error-message");
-            
+
             if (parseFloat(buyToken) < parseFloat(minInput) || parseFloat(buyToken) > parseFloat(maxInput)) {
                 errorMessage.textContent = "Value must be in the range from "+minInput+" to "+maxInput+".";
                 return;
@@ -1582,13 +1582,13 @@
                 data: {
                     'project_id' : "{{$findProject->id}}",
                     '_token' : $('meta[name="csrf-token"]').attr('content'),
-                
+
                 },
                 beforeSend: function(){
                     toastr.success('Sending data...');
                 },
                 complete: function(){
-                    
+
                 },
                 success:function(data){
                     if(data.code == 200) {
@@ -1604,18 +1604,18 @@
                             // /paymoney/{slug}/{price}
                             location.replace(home + '/paymoney/' + data.slug + '/' + $('#max_token_input').val() + '/{{$client}}' + '/{{$secret}}') ;
                         }
-                        
+
                     }
                     else {
                         toastr.error('Error get token', 'Error')
-                        
+
                     }
                 },
                 error: function(xhr, status, error) {
                     var err = eval("(" + xhr.responseText + ")");
                     toastr.error('Error get token ', 'Error')
                 }
-                
+
             });
         });
 
@@ -1639,7 +1639,7 @@
 		        success: function(data) {
 
 		           $('.gallery-row').html(data.view);
-		    
+
 		            if($updatePagination) {
 		                if(data.total > 12) {
 			                // append pagenation
@@ -1674,7 +1674,7 @@
 	        });
 	    }
         pagination({{$totalItem}}, true);
-        
+
         // video
         function ajaxVideoCall($page = 1, $updatePagination = true) {
 			$.ajax({
@@ -1695,7 +1695,7 @@
 		        success: function(data) {
 
 		           $('#video-wrap').html(data.view);
-		    
+
 		            if($updatePagination) {
 		                if(data.total > 12) {
 			                // append pagenation
@@ -1730,10 +1730,10 @@
 	        });
 	    }
         videoPagination({{$totalVideoItem}}, true);
-        
+
         let videoClick = false;
         let galleryClick = false;
-        
+
         function loadVideoSpeed(event) {
             if (!videoClick)  {
                 $.ajax({
@@ -1753,22 +1753,22 @@
     					//$('.loading-spin').html('');
     			    },
     		        success: function(data) {
-    
+
                         videoClick = true;
         		        $('#load-video-wrap').html(data.html);
         		        if( $('#pagination-video').length )  {
                             $('#pagination-video').show();
                         }
-    
-    		            
-    
+
+
+
     		        }
     		    });
             }
-           
+
         }
         function loadImagesSpeed(event) {
-            if (!galleryClick)  { 
+            if (!galleryClick)  {
                 $.ajax({
 		        type: "POST",
 				headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
@@ -1779,10 +1779,10 @@
 		            "_token": "{{ csrf_token() }}",
 		        },
 				beforeSend: function(){
-					
+
 			    },
 			    complete: function(){
-					
+
 			    },
 		        success: function(data) {
 
@@ -1792,13 +1792,13 @@
                         $('#pagination-wrap').show();
                     }
 
-		            
+
 
 		        }
 		    });
-            
+
             }
-            
+
         }
 
 </script>

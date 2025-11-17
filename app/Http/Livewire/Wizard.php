@@ -334,6 +334,7 @@ class Wizard extends Component
         // if(is_numeric($this->as_investments))
         //     $this->total_investment = floatval($this->total_investment) + floatval($this->as_investments);
         $this->total_investment = 0;
+        $this->add_investments_value = $this->add_investments_value ?? [];
 
         foreach ($this->add_investments_value as $value) {
             if ((is_numeric(unformatNumber($value)))) {

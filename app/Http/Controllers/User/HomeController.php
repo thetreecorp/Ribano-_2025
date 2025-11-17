@@ -179,7 +179,7 @@ class HomeController extends Controller
 
         // sumtotal
         $totalSum = SendTokenLog::where('user_id', $this->user->id)->sum('total_amount');
-        
+
         $totalSum = $totalSum ?? 0;
 
         return view($this->theme . 'user.dashboard', $data, compact('monthly', 'latestRegisteredUser', 'totalSum'));
@@ -317,6 +317,7 @@ class HomeController extends Controller
         if ($request->hasFile('image')) {
             $path = config('location.user.path');
             try {
+                
                 $user->image = $this->uploadImage($image, $path);
             } catch (\Exception $exp) {
                 return back()->with('error', 'Could not upload your ' . $image)->withInput();
@@ -421,10 +422,10 @@ class HomeController extends Controller
         try {
             $user = $this->user;
             $req = Purify::clean($request->all());
-            
+
           //  dd($req);
             //dd($user);
-          
+
             $user->minimum_investment = $req['minimum_investment'];
             $user->maximum_investment = $req['maximum_investment'];
             $user->investor_type = $req['investor_type'];
@@ -438,18 +439,18 @@ class HomeController extends Controller
             $user->keywords = $req['keywords'];
             $user->my_company = $req['my_company'];
             $adr = $user->save();
-           
+
           // in_array()
-           
+
           // dd($adr);
-           
+
             return back()->with('success', 'Investor Info Changes successfully.');
         }
         catch (\Exception $e) {
             dd($e->getMessage());
             return back()->with('error', $e->getMessage());
         }
-        
+
 
     }
 
@@ -697,9 +698,9 @@ class HomeController extends Controller
 
     public function withdraw(Request $request)
     {
-        
+
         $type = $request->type ?? '';
-        
+
         $withdrawnTokens = getWithdrawRequest($this->user->id);
         $userTokens = SendTokenLog::with('token')
             ->where('user_id', $this->user->id)
@@ -707,13 +708,13 @@ class HomeController extends Controller
             ->groupBy('token_id')
             ->orderBy('id', 'DESC')
             ->paginate(config('basic.paginate'));
-        
+
         $userTokens->getCollection()->transform(function ($log)  use ($withdrawnTokens) {
             $withdrawableTokens = SendTokenLog::where('user_id', $this->user->id)
                 ->where('token_id', $log->token_id)
                 ->whereRaw('DATEDIFF(NOW(), created_at) >= (SELECT set_withdraw_date FROM manage_plans WHERE id = token_id)')
                 ->sum('number_token');
-            
+
                         // $log->withdrawableTokens = $withdrawableTokens;
 
             $symbol = optional($log->token)->token_symbol;
@@ -725,14 +726,14 @@ class HomeController extends Controller
 
             return $log;
         });
-        
+
         $wallets = WithdrawRequest::distinct()->pluck('to_wallet');
-        
+
         return view($this->theme . 'user.transaction.withdraw', compact('userTokens', 'type', 'wallets'));
     }
-    
-    
-    
+
+
+
     public function withdrawHistory()
     {
         $userTokens = WithdrawRequest::with('token')
@@ -740,20 +741,20 @@ class HomeController extends Controller
             ->selectRaw('*')
             ->orderBy('id', 'DESC')
             ->paginate(config('basic.paginate'));
-            
+
         return view($this->theme . 'user.transaction.withdraw-history', compact('userTokens'));
     }
-    
+
     public function transactionHistory()
     {
         $investments = $this->user->payMoneys()->groupBy('project_id')->selectRaw('*, sum(paymoneys.total) as totalToken')->paginate(config('basic.paginate'));
-        
+
         $userTokens = SendTokenLog::with('token')
             ->where('user_id', $this->user->id)->orderBy('id','DESC')
             ->paginate(config('basic.paginate'));
-        
+
         //dd($userTokens);
-        
+
         return view($this->theme . 'user.transaction.transactionLog', compact('investments', 'userTokens'));
     }
 
@@ -1390,7 +1391,7 @@ class HomeController extends Controller
                 'name' => $user->fullname,
                 'date' => $currentDate,
             ]);
-            
+
 
             $this->mailToAdmin($type = 'ADMIN_MAIL_USER_ADDRESS_VERIFICATION_REQUEST', [
                 'name' => $user->fullname,

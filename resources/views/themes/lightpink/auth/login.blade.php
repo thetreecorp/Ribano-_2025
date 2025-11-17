@@ -10,7 +10,7 @@
                 <div class="col-lg-7 col-md-5">
                     <div class="login_signup_banner">
                         <div class="image_area animation1">
-                            <img src="{{ asset('public/assets/images/login-bg.jpg') }}" alt="">
+                            <img src="{{ asset('/assets/images/login-bg.jpg') }}" alt="">
                         </div>
                     </div>
                 </div>
